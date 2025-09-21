@@ -1,13 +1,13 @@
 const User = require('../models/User');
 
-exports.getUsers = async (req, res) => {
-    const users = await User.find();
-    res.json(users);
+const getUserById = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };
 
-exports.createUser = async (req, res) => {
-    const { name, email, password } = req.body;
-    const user = new User({ name, email, password });
-    await user.save();
-    res.status(201).json(user);
-};
+module.exports = { getUserById };
