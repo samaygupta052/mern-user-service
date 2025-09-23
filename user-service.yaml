@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: user-service
+  template:
+    metadata:
+      labels:
+        app: user-service
+    spec:
+      containers:
+        - name: user-service
+          image: samaygupta018/user-service:1.1   # your Docker image
+          ports:
+            - containerPort: 5000
+          env:
+            - name: PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: user-service-config
+                  key: PORT
+            - name: SERVICE_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: user-service-config
+                  key: SERVICE_NAME
+            - name: MONGO_URI
+              valueFrom:
+                secretKeyRef:
+                  name: user-service-secret
+                  key: mongo-uri
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-service
+spec:
+  selector:
+    app: user-service
+  ports:
+    - protocol: TCP
+      port: 5000
+      targetPort: 5000
+  type: ClusterIP
+
